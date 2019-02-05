@@ -110,6 +110,7 @@ WORKDIR /vsts
 ARG AGENT_FILENAME
 COPY ./$AGENT_FILENAME ./agent.tar.gz
 
+COPY ./mongodb.conf /etc/mongodb.conf
 COPY ./start.sh .
 COPY ./containerStart.sh .
 RUN mkdir agent && tar --no-same-owner -xzf agent.tar.gz -C agent && chmod +x start.sh && rm ./agent.tar.gz && chmod +x ./containerStart.sh
