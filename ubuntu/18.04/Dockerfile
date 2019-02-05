@@ -111,9 +111,11 @@ ARG AGENT_FILENAME
 COPY ./$AGENT_FILENAME ./agent.tar.gz
 
 COPY ./start.sh .
-RUN mkdir agent && tar --no-same-owner -xzf agent.tar.gz -C agent && chmod +x start.sh && rm ./agent.tar.gz
+COPY ./containerStart.sh .
+RUN mkdir agent && tar --no-same-owner -xzf agent.tar.gz -C agent && chmod +x start.sh && rm ./agent.tar.gz && chmod +x ./containerStart.sh
 
 # Squash - saves ~50Mb at present so doesn't seem  worth the build/push time
 # FROM ubuntu:18.04
 # COPY --from=0 / /
-CMD ["service mongodb start && ./start.sh"]
+
+CMD ["./containerStart.sh"]
