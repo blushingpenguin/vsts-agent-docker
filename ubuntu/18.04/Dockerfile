@@ -82,8 +82,9 @@ RUN apt-get update \
  && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
  && curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list | tee /etc/apt/sources.list.d/microsoft.list \
  && apt-get update \
- && apt-get install -y --no-install-recommends \
-    powershell \
+ && apt-get install -y --no-install-recommends powershell \
+ && pwsh -Command 'Install-Module Az -Force' \
+ && pwsh -Command 'Install-Module Az.Search -Force' \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
 
