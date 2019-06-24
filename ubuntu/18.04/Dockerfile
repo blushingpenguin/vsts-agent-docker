@@ -68,11 +68,11 @@ ENV dotnet=/usr/bin/dotnet
 # ENV bower=/usr/local/bin/bower \
 #     grunt=/usr/local/bin/grunt
 
-# Install LTS Node.js and related tools
+# Install latest Node.js and related tools (change latest->lts when 12 is lts)
 RUN apt-get update \
  && apt-get install -y --no-install-recommends make \
  && curl -sL https://git.io/n-install | bash -s -- -ny - \
- && ~/n/bin/n lts \
+ && ~/n/bin/n latest \
  && npm i -g npm \
  && rm -rf ~/n
 

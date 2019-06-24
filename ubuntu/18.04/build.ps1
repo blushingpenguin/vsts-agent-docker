@@ -71,4 +71,5 @@ else
     Write-Host "downloaded agent to '$fn'"
 }
 
+# --no-cache
 docker build -t vsts-agent -t vendeq.azurecr.io/vsts-agent --build-arg AGENT_FILENAME=$fn .
