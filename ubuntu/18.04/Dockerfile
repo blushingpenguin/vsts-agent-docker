@@ -102,6 +102,14 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
 
+# Install docker
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
+ && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends docker-ce docker-ce-cli \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /etc/apt/sources.list.d/*
+ 
 # Clean system
 RUN apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
