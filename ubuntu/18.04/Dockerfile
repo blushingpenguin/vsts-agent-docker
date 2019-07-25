@@ -22,6 +22,7 @@ RUN apt-get update \
         netcat \
  && curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash \
  && apt-get install -y --no-install-recommends git-lfs \
+ && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
 
@@ -31,18 +32,19 @@ RUN mkdir -p "/root/.microsoft/Team Foundation/4.0/Configuration/TEE-Mementos" \
  && echo '<ProductIdData><eula-14.0 value="true"/></ProductIdData>' > "com.microsoft.tfs.client.productid.xml"
 
 # Install Azure CLI (instructions taken from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
-# RUN apt-get update \
-#  && apt-get install -y --no-install-recommends gpg-agent \
-#  && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" \
-#   | tee /etc/apt/sources.list.d/azure-cli.list \
-#  && curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-#  && apt-get update \
-#  && apt-get install -y --no-install-recommends \
-#     apt-transport-https \
-#     azure-cli \
-#  && rm -rf /var/lib/apt/lists/* \
-#  && rm -rf /etc/apt/sources.list.d/* \
-#  && az --version
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends gpg-agent \
+ && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" \
+  | tee /etc/apt/sources.list.d/azure-cli.list \
+ && curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends \
+    apt-transport-https \
+    azure-cli \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /etc/apt/sources.list.d/* \
+ && az --version
 
 # Install .NET Core SDK and initialize package cache
 RUN curl https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb > packages-microsoft-prod.deb \
@@ -54,6 +56,7 @@ RUN curl https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-p
     libgdiplus \
     libc6-dev \
     dotnet-sdk-2.2 \
+ && apt-get clean \    
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
 RUN dotnet help
@@ -74,7 +77,10 @@ RUN apt-get update \
  && curl -sL https://git.io/n-install | bash -s -- -ny - \
  && ~/n/bin/n latest \
  && npm i -g npm \
- && rm -rf ~/n
+ && rm -rf ~/n \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /etc/apt/sources.list.d/*
 
 # Install Powershell Core
 RUN apt-get update \
@@ -85,6 +91,7 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends powershell \
  && pwsh -Command 'Install-Module Az -Force' \
  && pwsh -Command 'Install-Module Az.Search -Force' \
+ && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
 
@@ -93,12 +100,14 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
  && apt-get update \
  && apt-get install -y --no-install-recommends yarn zip unzip \
+ && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
 
 # Install mongodb
 RUN apt-get update \
  && apt-get install -y --no-install-recommends mongodb-server \
+ && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
 
@@ -107,9 +116,29 @@ RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
  && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" \
  && apt-get update \
  && apt-get install -y --no-install-recommends docker-ce docker-ce-cli \
+ && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
- 
+
+# Install ktmpl
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends rustc cargo \
+  && cargo install ktmpl \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /etc/apt/sources.list.d/*
+
+# Install kubectl
+RUN apt-get update \
+ && apt-get install -y apt-transport-https \
+ && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
+ && add-apt-repository "deb https://apt.kubernetes.io/ kubernetes-xenial main" \
+ && apt-get update \
+ && apt-get install -y kubectl \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /etc/apt/sources.list.d/*
+
 # Clean system
 RUN apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
@@ -127,5 +156,5 @@ RUN mkdir agent && tar --no-same-owner -xzf agent.tar.gz -C agent && chmod +x st
 # Squash - saves ~50Mb at present so doesn't seem  worth the build/push time
 # FROM ubuntu:18.04
 # COPY --from=0 / /
-
+ENV PATH="/root/.cargo/bin:${PATH}"
 CMD ["./containerStart.sh"]
