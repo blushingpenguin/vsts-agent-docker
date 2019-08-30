@@ -91,6 +91,7 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends powershell \
  && pwsh -Command 'Install-Module Az -Force' \
  && pwsh -Command 'Install-Module Az.Search -Force' \
+ && pwsh -Command 'Install-Module Az.Maps -Force' \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
