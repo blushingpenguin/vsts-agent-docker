@@ -11,8 +11,10 @@ RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes
 #        libunwind8 \
 
 # Add an 'app' user for apps to run as
-RUN groupadd -g 999 app && \
-    useradd -g app -u 999 app
+RUN groupadd -g 999 app \
+ && useradd -g app -u 999 app \
+ && mkdir /home/app \
+ && chown -R app:app /home/app
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -93,9 +95,9 @@ RUN apt-get update \
  && curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list | tee /etc/apt/sources.list.d/microsoft.list \
  && apt-get update \
  && apt-get install -y --no-install-recommends powershell \
- && pwsh -Command 'Install-Module Az -Force' \
- && pwsh -Command 'Install-Module Az.Search -Force' \
- && pwsh -Command 'Install-Module Az.Maps -Force' \
+ && pwsh -Command 'Install-Module Az -Force -Scope AllUsers' \
+ && pwsh -Command 'Install-Module Az.Search -Force -Scope AllUsers' \
+ && pwsh -Command 'Install-Module Az.Maps -Force -Scope AllUsers' \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
@@ -130,7 +132,7 @@ RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
 # Install ktmpl
 RUN apt-get update \
   && apt-get install -y --no-install-recommends rustc cargo \
-  && cargo install ktmpl \
+  && su - app -c "cargo install ktmpl" \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   && rm -rf /etc/apt/sources.list.d/*
@@ -159,10 +161,16 @@ COPY ./mongod.conf /etc/mongod.conf
 COPY ./initMongo.js .
 COPY ./start.sh .
 COPY ./containerStart.sh .
-RUN mkdir agent && tar --no-same-owner -xzf agent.tar.gz -C agent && chmod +x start.sh && rm ./agent.tar.gz && chmod +x ./containerStart.sh && chown -R app:app /vsts
+
+RUN mkdir agent \
+  && tar --no-same-owner -xzf agent.tar.gz -C agent \
+  && chown -R app:app /vsts \
+  && chmod +x start.sh \
+  && chmod +x ./containerStart.sh \
+  && rm ./agent.tar.gz
 
 # Squash - saves ~50Mb at present so doesn't seem  worth the build/push time
 # FROM ubuntu:18.04
 # COPY --from=0 / /
-ENV PATH="/root/.cargo/bin:${PATH}"
+ENV PATH="/home/app/.cargo/bin:${PATH}"
 CMD ["./containerStart.sh"]
