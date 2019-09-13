@@ -10,6 +10,10 @@ RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes
 #        libicu$(LIBICU_VERSION) \
 #        libunwind8 \
 
+# Add an 'app' user for apps to run as
+RUN groupadd -g 999 app && \
+    useradd -g app -u 999 app
+
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
         software-properties-common \
@@ -56,7 +60,7 @@ RUN curl https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-p
     libgdiplus \
     libc6-dev \
     dotnet-sdk-2.2 \
- && apt-get clean \    
+ && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
 RUN dotnet help
@@ -106,8 +110,10 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
  && rm -rf /etc/apt/sources.list.d/*
 
 # Install mongodb
-RUN apt-get update \
- && apt-get install -y --no-install-recommends mongodb-server \
+RUN curl https://www.mongodb.org/static/pgp/server-4.0.asc | apt-key add - \
+ && echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends mongodb-org \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
@@ -149,10 +155,11 @@ WORKDIR /vsts
 ARG AGENT_FILENAME
 COPY ./$AGENT_FILENAME ./agent.tar.gz
 
-COPY ./mongodb.conf /etc/mongodb.conf
+COPY ./mongod.conf /etc/mongod.conf
+COPY ./initMongo.js .
 COPY ./start.sh .
 COPY ./containerStart.sh .
-RUN mkdir agent && tar --no-same-owner -xzf agent.tar.gz -C agent && chmod +x start.sh && rm ./agent.tar.gz && chmod +x ./containerStart.sh
+RUN mkdir agent && tar --no-same-owner -xzf agent.tar.gz -C agent && chmod +x start.sh && rm ./agent.tar.gz && chmod +x ./containerStart.sh && chown -R app:app /vsts
 
 # Squash - saves ~50Mb at present so doesn't seem  worth the build/push time
 # FROM ubuntu:18.04
