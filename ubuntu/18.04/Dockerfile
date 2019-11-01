@@ -12,7 +12,9 @@ RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes
 
 # Add an 'app' user for apps to run as
 RUN groupadd -g 999 app && \
-    useradd -g app -u 999 app
+    useradd -g app -u 999 app && \
+    mkdir /home/app && \
+    chown app:app /home/app
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -60,6 +62,7 @@ RUN curl https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-p
     libgdiplus \
     libc6-dev \
     dotnet-sdk-2.2 \
+    dotnet-sdk-3.0 \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
@@ -79,7 +82,7 @@ ENV dotnet=/usr/bin/dotnet
 RUN apt-get update \
  && apt-get install -y --no-install-recommends make \
  && curl -sL https://git.io/n-install | bash -s -- -ny - \
- && ~/n/bin/n latest \
+ && ~/n/bin/n lts \
  && npm i -g npm \
  && rm -rf ~/n \
  && apt-get clean \
