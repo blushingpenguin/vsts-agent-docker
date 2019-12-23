@@ -62,7 +62,7 @@ RUN curl https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-p
     libgdiplus \
     libc6-dev \
     dotnet-sdk-2.2 \
-    dotnet-sdk-3.0 \
+    dotnet-sdk-3.1 \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
