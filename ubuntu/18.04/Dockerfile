@@ -61,7 +61,6 @@ RUN curl https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-p
     apt-transport-https \
     libgdiplus \
     libc6-dev \
-    dotnet-sdk-2.2 \
     dotnet-sdk-3.1 \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
@@ -80,10 +79,10 @@ ENV dotnet=/usr/bin/dotnet
 
 # Install latest Node.js and related tools (change latest->lts when 12 is lts)
 RUN apt-get update \
- && apt-get install -y --no-install-recommends make \
+ && apt-get install -y --no-install-recommends build-essential \
  && curl -sL https://git.io/n-install | bash -s -- -ny - \
  && ~/n/bin/n lts \
- && npm i -g npm \
+ && npm i -g npm node-gyp \
  && rm -rf ~/n \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
