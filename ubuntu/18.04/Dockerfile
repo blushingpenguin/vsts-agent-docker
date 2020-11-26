@@ -112,11 +112,13 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
  && rm -rf /etc/apt/sources.list.d/*
 
 # Install mongodb
-RUN curl https://www.mongodb.org/static/pgp/server-4.0.asc | apt-key add - \
- && echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list \
+RUN curl https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add - \
+ && echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
+ && ln -s /bin/true /bin/systemctl \
  && apt-get update \
  && apt-get install -y --no-install-recommends mongodb-org \
  && apt-get clean \
+ && rm /bin/systemctl \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
 
