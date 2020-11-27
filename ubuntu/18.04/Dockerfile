@@ -77,9 +77,9 @@ ENV dotnet=/usr/bin/dotnet
 # ENV bower=/usr/local/bin/bower \
 #     grunt=/usr/local/bin/grunt
 
-# Install latest Node.js and related tools (change latest->lts when 12 is lts)
+# Install latest Node.js lts and related tools
 RUN apt-get update \
- && apt-get install -y --no-install-recommends build-essential \
+ && apt-get install -y --no-install-recommends build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config \
  && curl -sL https://git.io/n-install | bash -s -- -ny - \
  && ~/n/bin/n lts \
  && npm i -g npm node-gyp \
