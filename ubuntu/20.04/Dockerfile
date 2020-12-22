@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 # To make it easier for build and release pipelines to run apt-get,
 # configure apt to not require confirmation (assume the -y argument by default)
@@ -62,6 +62,7 @@ RUN curl https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-p
     libgdiplus \
     libc6-dev \
     dotnet-sdk-3.1 \
+    dotnet-sdk-5.0 \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
@@ -77,9 +78,9 @@ ENV dotnet=/usr/bin/dotnet
 # ENV bower=/usr/local/bin/bower \
 #     grunt=/usr/local/bin/grunt
 
-# Install latest Node.js and related tools (change latest->lts when 12 is lts)
+# Install latest Node.js lts and related tools
 RUN apt-get update \
- && apt-get install -y --no-install-recommends build-essential \
+ && apt-get install -y --no-install-recommends build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config \
  && curl -sL https://git.io/n-install | bash -s -- -ny - \
  && ~/n/bin/n lts \
  && npm i -g npm node-gyp \
