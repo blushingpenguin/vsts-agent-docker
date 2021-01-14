@@ -7,7 +7,18 @@ function Get-Secret([string] $name)
     {
         throw "Missing secret value for '$name'";
     }
-    return $result.SecretValueText
+
+
+    # well fuck me, this is an improvement over "SecretValueText" and no mistake
+    $ssPtr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($result.SecretValue)
+    try
+    {
+       return [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($ssPtr)
+    }
+    finally
+    {
+        [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ssPtr)
+    }
 }
 
 $VSTS_TOKEN = Get-Secret -Name "VSTS-TOKEN"

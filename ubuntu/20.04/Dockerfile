@@ -53,7 +53,7 @@ RUN apt-get update \
  && az --version
 
 # Install .NET Core SDK and initialize package cache
-RUN curl https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb > packages-microsoft-prod.deb \
+RUN curl https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb > packages-microsoft-prod.deb \
  && dpkg -i packages-microsoft-prod.deb \
  && rm packages-microsoft-prod.deb \
  && apt-get update \
@@ -93,7 +93,7 @@ RUN apt-get update \
 RUN apt-get update \
  && apt-get install -y --no-install-recommends gpg-agent \
  && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
- && curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list | tee /etc/apt/sources.list.d/microsoft.list \
+ && curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | tee /etc/apt/sources.list.d/microsoft.list \
  && apt-get update \
  && apt-get install -y --no-install-recommends powershell \
  && pwsh -Command 'Install-Module Az -Force -Scope AllUsers' \
@@ -114,20 +114,23 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 
 # Install mongodb
 RUN curl https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add - \
- && echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
+ && echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
+ && mv /bin/systemctl /tmp \
  && ln -s /bin/true /bin/systemctl \
  && apt-get update \
  && apt-get install -y --no-install-recommends mongodb-org \
  && apt-get clean \
  && rm /bin/systemctl \
+ && mv /tmp/systemctl /bin \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
 
 # Install docker
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
- && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" \
+ && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable" \
  && apt-get update \
  && apt-get install -y --no-install-recommends docker-ce docker-ce-cli \
+ && usermod -a -G docker app \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
@@ -173,7 +176,7 @@ RUN mkdir agent \
   && rm ./agent.tar.gz
 
 # Squash - saves ~50Mb at present so doesn't seem  worth the build/push time
-# FROM ubuntu:18.04
+# FROM ubuntu:20.04
 # COPY --from=0 / /
 ENV PATH="/home/app/.cargo/bin:${PATH}"
 CMD ["./containerStart.sh"]
